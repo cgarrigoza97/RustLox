@@ -7,3 +7,6 @@ edition = "2024"
 num = "0.4.3"
 num-derive = "0.4.2"
 num-traits = "0.2.19"
+
+[features]
+debug_trace_execution = []

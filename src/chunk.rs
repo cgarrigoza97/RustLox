@@ -6,6 +6,11 @@ use crate::value::{Value, ValueArray};
 #[derive(FromPrimitive)]
 pub enum OpCode {
     OpConstant,
+    OpAdd,
+    OpSubstract,
+    OpMultiply,
+    OpDivide,
+    OpNegate,
     OpReturn
 }
 

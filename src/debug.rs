@@ -22,6 +22,11 @@ pub fn disassemble_instruction(chunk: &Chunk, offset: usize) -> usize {
     let instruction_op_code = num::FromPrimitive::from_u8(instruction);
     match instruction_op_code {
         Some(OpCode::OpConstant) => return constant_instruction("OP_CONSTANT", &chunk, offset),
+        Some(OpCode::OpAdd) => return simple_instruction("OP_ADD", offset),
+        Some(OpCode::OpSubstract) => return simple_instruction("OP_SUBSTRACT", offset),
+        Some(OpCode::OpMultiply) => return simple_instruction("OP_MULTIPLY", offset),
+        Some(OpCode::OpDivide) => return simple_instruction("OP_DIVIDE", offset),
+        Some(OpCode::OpNegate) => return simple_instruction("OP_NEGATE", offset),
         Some(OpCode::OpReturn) => return simple_instruction("OP_RETURN", offset),
         _ => {
             println!("Unknown opcode {}", instruction);
