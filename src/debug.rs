@@ -1,4 +1,4 @@
-use crate::chunk::{OpCode, Chunk};
+use crate::chunk::{Chunk, OpCode};
 use crate::value;
 
 pub fn disassemble_chunk(chunk: &Chunk, name: &str) {
@@ -40,8 +40,8 @@ fn constant_instruction(name: &str, chunk: &Chunk, offset: usize) -> usize {
 
     print!("{:<16} {:>4} '", name, constant);
     value::print_value(chunk.constants.values[constant]);
-    println!("");
-    
+    println!();
+
     return offset + 2;
 }
 

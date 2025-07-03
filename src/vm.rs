@@ -1,48 +1,53 @@
 use num_traits::FromPrimitive;
 
-use crate::chunk::{OpCode, Chunk};
-use crate::value::{self, print_value, Value};
+use crate::chunk::{Chunk, OpCode};
+use crate::compiler::Compiler;
+use crate::debug;
+use crate::value::{self, Value, print_value};
 
 const STACK_MAX: usize = 256;
 
 macro_rules! binary_op {
     ($self:expr, $op:tt) => {{
-        let b = $self.pop();    
+        let b = $self.pop();
         let a = $self.pop();
         $self.push(a $op b);
     }};
 }
 
+#[derive(PartialEq, Eq)]
 pub enum InterpretResult {
     InterpretOk,
     InterpretCompileError,
-    InterpretRuntimeError
+    InterpretRuntimeError,
 }
 
 pub struct VM<'a> {
     pub chunk: &'a Chunk,
+    pub compiler: &'a mut Compiler<'a>,
     pub ip: usize,
     pub stack: [Value; STACK_MAX],
     pub stack_top: usize,
 }
 
 impl<'a> VM<'a> {
-    pub fn new(chunk: &'a Chunk) -> Self {
-        Self { 
-            chunk, 
+    pub fn new(chunk: &'a Chunk, compiler: &'a mut Compiler<'a>) -> Self {
+        Self {
+            chunk,
+            compiler,
             ip: 0,
             stack: [0.0; STACK_MAX],
-            stack_top: 0
+            stack_top: 0,
         }
     }
 
-    pub fn interpret(&mut self) -> InterpretResult {
-        self.ip = 0;
-        return self.run();
+    pub fn interpret(&mut self, source: String) -> InterpretResult {
+        self.compiler.compile(source);
+        return InterpretResult::InterpretOk;
     }
 
     pub fn push(&mut self, value: Value) {
-        self.stack[self.stack_top] = value; 
+        self.stack[self.stack_top] = value;
         self.stack_top += 1;
     }
 
@@ -50,15 +55,16 @@ impl<'a> VM<'a> {
         self.stack_top -= 1;
         return self.stack[self.stack_top];
     }
-            
+
     fn run(&mut self) -> InterpretResult {
         loop {
-            #[cfg(feature = "debug_trace_execution")] {
+            #[cfg(feature = "debug_trace_execution")]
+            {
                 debug::disassemble_instruction(&self.chunk, self.ip);
                 print!("          ");
                 for slot in 0..self.stack_top {
                     print!("[ ");
-                    print_value(&self.stack[slot]);
+                    print_value(self.stack[slot]);
                     print!(" ]");
                 }
                 println!();
@@ -94,7 +100,7 @@ impl<'a> VM<'a> {
                     println!();
                     return InterpretResult::InterpretOk;
                 }
-                _ => return InterpretResult::InterpretCompileError
+                _ => return InterpretResult::InterpretCompileError,
             }
         }
     }
